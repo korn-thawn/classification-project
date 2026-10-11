@@ -1,0 +1,67 @@
+# ค่าทั้งหมดที่ปรับได้ของโปรเจกต์ OK/NG classification
+# ตอน train จะ copy config ที่ใช้จริงเก็บไว้คู่กับ checkpoint ใน runs/{model_version}/
+
+seed: 42
+classes: [OK, NG]          # ลำดับนี้คือ label index (OK=0, NG=1); num_classes = len(classes)
+positive_class: NG         # class ที่ถือเป็น "ของเสีย" ใช้คำนวณ NG recall / threshold
+
+camera:
+  index: 0                 # เลข webcam ใน OpenCV
+  width: 1280
+  height: 720
+
+data:
+  raw_dir: data/raw        # data/raw/{session}/{OK|NG}/*.png
+  # ระบุชื่อ session เองได้ ถ้าเว้นว่างจะแบ่งอัตโนมัติตามเวลา:
+  # session ใหม่สุด = test, ถัดมา = val, ที่เหลือ = train
+  val_sessions: []
+  test_sessions: []
+  cache_in_ram: true       # เก็บภาพหลัง crop+resize ไว้ใน RAM (128x128x3 ≈ 49 KB/ภาพ)
+
+preprocess:
+  roi: null                # [x, y, w, h] บนภาพดิบจากกล้อง หรือ null = ใช้ทั้งภาพ
+  image_size: 128          # ภาพ input ของโมเดลเป็นสี่เหลี่ยมจัตุรัส image_size x image_size
+  mean: [0.5, 0.5, 0.5]    # ลำดับ RGB หลังหาร 255
+  std: [0.25, 0.25, 0.25]
+
+augment:
+  enabled: true            # สวิตช์หลัก ปิดตัวนี้ = ไม่ augment เลย
+  hflip:      {enabled: true,  p: 0.5}
+  vflip:      {enabled: true,  p: 0.5}
+  affine:                  # rotate + translate + scale รวมเป็น warpAffine ครั้งเดียว
+    enabled: true
+    p: 0.7
+    max_rotate_deg: 15
+    max_translate_frac: 0.05   # สัดส่วนของความกว้าง/สูงภาพ
+    scale_range: [0.95, 1.05]
+  brightness: {enabled: true,  p: 0.5, max_delta: 25}          # บวก/ลบค่า pixel (0-255)
+  contrast:   {enabled: true,  p: 0.5, range: [0.8, 1.2]}
+  gamma:      {enabled: true,  p: 0.3, range: [0.8, 1.25]}
+  noise:      {enabled: true,  p: 0.3, max_std: 8.0}           # gaussian noise (หน่วย pixel)
+  blur:       {enabled: true,  p: 0.2, kernel_sizes: [3, 5]}   # gaussian blur, kernel ต้องเป็นเลขคี่
+
+model:
+  channels: [16, 32, 64, 128, 128]   # 1 ค่าต่อ 1 conv block (4-6 block)
+  dropout: 0.3
+
+train:
+  epochs: 80
+  batch_size: 32
+  lr: 0.001
+  weight_decay: 0.0001
+  patience: 15             # early stopping: หยุดถ้า val loss ไม่ดีขึ้นกี่ epoch (val loss ช่วงแรกแกว่งแรง อย่าตั้งต่ำ)
+  device: auto             # auto | cpu | cuda
+  num_workers: 0           # บน Windows ค่า 0 มักเร็วสุดเมื่อ cache ภาพไว้ใน RAM
+  out_dir: runs
+
+evaluate:
+  target_ng_recall: 0.99   # threshold ที่เลือกต้องจับ NG ได้อย่างน้อยเท่านี้ (บน val)
+
+inference:
+  checkpoint: null         # path ของ best.pt หรือ null = ใช้ run ล่าสุดจาก runs/LATEST
+  threshold: 0.5           # ใช้เมื่อไม่มี threshold.json จาก evaluate.py --save-threshold
+
+server:
+  host: 127.0.0.1
+  port: 8000
+  max_upload_mb: 10

@@ -1,0 +1,24 @@
+# Python
+.venv/
+__pycache__/
+*.py[cod]
+
+# Data, trained models and generated outputs (large / regenerate with the scripts)
+data/
+runs/
+outputs/
+
+# Web (also covered by web/.gitignore)
+node_modules/
+web/client/dist/
+
+# Local tool / editor settings
+.claude/settings.local.json
+.vscode/
+.idea/
+Thumbs.db
+desktop.ini
+
+
+กลับมาทำต่อ.txt
+CLAUDE.md

@@ -1,0 +1,16 @@
+# ติดตั้ง PyTorch ก่อน (build CUDA 12.6, ใช้กับ GTX 1650 Ti ได้):
+#   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cu126
+# ไม่มี GPU NVIDIA ให้ใช้ build CPU แทน:
+#   pip install torch==2.14.1 --index-url https://download.pytorch.org/whl/cpu
+# จากนั้น: pip install -r requirements.txt
+# ตรวจ license ของทุก package (รวมตัวที่ลากมาด้วย): python tools/check_licenses.py
+
+torch==2.14.1             # BSD-3-Clause (ตัว wheel รวม Apache-2.0 / MIT / BSL-1.0 ของ third-party ด้วย)
+numpy==2.4.6              # BSD-3-Clause
+opencv-python==5.0.0.93   # Apache-2.0 (OpenCV), MIT (wrapper) -- wheel มี FFmpeg DLL แบบ LGPL-2.1 มาด้วย ดู README
+fastapi==0.143.0          # MIT
+uvicorn==0.54.0           # BSD-3-Clause
+python-multipart==0.0.32  # Apache-2.0
+scikit-learn==1.9.1       # BSD-3-Clause (ใช้เฉพาะคำนวณ metrics)
+matplotlib==3.11.2        # Matplotlib License (แบบ PSF, เข้ากันได้กับ BSD)
+PyYAML==6.0.3             # MIT

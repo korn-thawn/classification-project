@@ -1,0 +1,11 @@
+{
+  "name": "okng-web",
+  "private": true,
+  "workspaces": ["server", "client"],
+  "scripts": {
+    "dev": "node tools/dev.mjs",
+    "build": "npm run build -w client",
+    "start": "npm start -w server",
+    "check-licenses": "node tools/check-licenses.mjs"
+  }
+}
